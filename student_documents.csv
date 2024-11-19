@@ -1,0 +1,24 @@
+2,"Mixed Mode Arithmetic and Casting","
+Mixed Mode Arithmetic and Casting:
+- converted to the heaviest type (byte → char → short → int → l → f → d).
+- Example: 2 + 3.3 is interpreted as 2.0 + 3.3.
+- You can change the type using casting (place the target type in parentheses).
+- Example: 
+  - aInt = 2 + (int) 3.3
+  - aInt = ?? (2 + 3.3)
+  - aDouble = 2 + 3.3
+
+Java Operators Example:
+- Example program dealing with operators:
+  - Outputs:
+    1. 'b'
+    2. 2
+    3. 2a (my assumption)
+    4. 20
+    5. b0
+    6. 1 (int division)
+    7. 2 (remainder)
+    8. 1 (casting double to int)
+    9. 1.04167 (double division)
+    10. 1.04167 (double division with 5.0)
+"

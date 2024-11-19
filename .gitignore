@@ -1,0 +1,8 @@
+# Ignore environment files
+.env
+
+# Ignore the 'extra' directory
+extra/
+
+# Ignore database files
+*.db
