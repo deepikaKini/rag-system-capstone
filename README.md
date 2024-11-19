@@ -138,6 +138,3 @@ Contributions are welcome! Please follow these steps:
 3. Commit your changes with clear messages.
 4. Submit a pull request for review.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
