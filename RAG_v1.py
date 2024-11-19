@@ -4,13 +4,9 @@ import torch
 import faiss
 from transformers import AutoTokenizer, AutoModel
 import google.generativeai as genai
+from dotenv import load_dotenv
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-
-# Configure Gemini API key
-# genai.configure(api_key="AIzaSyDBZYnMzqNnkka9eaOtp5T41NMRpoOGYHI")
-
-from dotenv import load_dotenv
 
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
@@ -19,6 +15,7 @@ if not api_key:
 genai.configure(api_key=api_key)
 gemini_model = genai.GenerativeModel("gemini-1.5-flash")
 
+number_of_students = 2
 # Function to fetch documents from the SQLite database based on a specific topic
 def fetch_data():
     conn = sqlite3.connect('CapstoneV1.db')
@@ -36,10 +33,10 @@ def fetch_data():
     return student_documents, reference_documents
 
 
-
 # Load pre-trained sentence transformer model
 tokenizer = AutoTokenizer.from_pretrained('sentence-transformers/all-MiniLM-L6-v2')
 model = AutoModel.from_pretrained('sentence-transformers/all-MiniLM-L6-v2')
+
 
 # Function to embed documents
 def embed_documents(documents):
@@ -48,19 +45,23 @@ def embed_documents(documents):
         outputs = model(**inputs)
     return outputs.last_hidden_state[:, 0, :].numpy()  # Use the [CLS] token embedding
 
+
 # Retrieval function for top_k similar documents
-def retrieve(query, index, documents, top_k=3):
+def retrieve(query, index, documents):
+    top_k = number_of_students + 1
     query_embedding = embed_documents([{"content": query}])
     distances, indices = index.search(query_embedding, top_k)
-    print(distances, indices)
+    # print(distances, indices)
 
     return [documents[i] for i in indices[0]]
+
 
 # Function to generate an answer using Gemini
 def generate_answer(context, query):
     prompt = f"Answer briefly based on the context:\n\nContext: {context}\n\nQuestion: {query}"
     response = gemini_model.generate_content(prompt)
     return response.text
+
 
 # Compare student and reference documents and find missing content
 # def compare_notes(student_docs, ref_docs):
@@ -79,14 +80,15 @@ def rag_pipeline(query, student_docs, ref_docs, index):
     # missing_context = " ".join(missing_notes)
 
     # Debugging: Print the retrieved documents to verify correctness
-    print("\n--- Retrieved Documents ---")
-    for doc in retrieved_docs:
-        print(doc['content'])
+    # print("\n--- Retrieved Documents ---")
+    # for doc in retrieved_docs:
+    #     print(doc['content'])
 
     answer = generate_answer(context, query)
     # missing_info = generate_answer(missing_context, query)
 
     return answer
+
 
 # Main execution
 if __name__ == "__main__":
@@ -95,11 +97,11 @@ if __name__ == "__main__":
         # Fetch only documents related to the specified topic
         student_documents, reference_documents = fetch_data()
 
-        student_notes = "\n".join([f"Student notes: {doc['topic'],doc['content'], doc['student_id']}" for doc in student_documents])
-        reference_notes = "\n".join([f"Reference notes: {doc['topic'],doc['content']}" for doc in reference_documents])
+        student_notes = "\n".join(
+            [f"Student notes: {doc['topic'], doc['content'], doc['student_id']}" for doc in student_documents])
+        reference_notes = "\n".join([f"Reference notes: {doc['topic'], doc['content']}" for doc in reference_documents])
 
         documents = student_notes + "\n" + reference_notes
-        print(documents)
 
         documents = student_documents + reference_documents
 
@@ -127,11 +129,13 @@ if __name__ == "__main__":
                 print("Exiting the RAG system. Goodbye!")
                 break
             query += f" for topic: {topic}"
+
             # Run the RAG pipeline
             answer = rag_pipeline(query, student_documents, reference_documents, index)
 
             # Print the RAG output and missing content details
             print("\nRAG Answer:")
             print(answer)
+
             # print("\nMissing Content in Student Notes:")
             # print(missing_info)

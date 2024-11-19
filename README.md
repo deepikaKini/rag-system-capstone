@@ -91,7 +91,7 @@ Ensure your `.gitignore` file includes the `.env` file to prevent it from being 
 ### Run the Script:
 
 ```bash
-python rag_system.py
+python RAG_v1.py
 ```
 
 ### Follow the Prompts:
@@ -129,12 +129,5 @@ Exiting the RAG system. Goodbye!
 - `README.md`: Documentation for the project.
 - `.gitignore`: Specifies intentionally untracked files to ignore.
 
-## Contributing
 
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Commit your changes with clear messages.
-4. Submit a pull request for review.
 
